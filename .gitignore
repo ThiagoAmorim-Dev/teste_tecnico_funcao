@@ -11,6 +11,9 @@ obj/
 # VS Code
 .vscode/
 
+#visual studio 
+.vs/
+
 # Others
 *.log
 *.db
