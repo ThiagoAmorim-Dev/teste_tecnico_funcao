@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 
 namespace FI.AtividadeEntrevista.DAL
 {
@@ -136,6 +137,27 @@ namespace FI.AtividadeEntrevista.DAL
             base.Executar("FI_SP_DelCliente", parametros);
         }
 
+
+
+        /// <summary>
+        /// Listando os beneficiários do cliente
+        /// </summary>
+        public List<DML.Beneficiario> BeneficiarioList(long Id)
+        {
+            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+            parametros.Add(new System.Data.SqlClient.SqlParameter("Id", Id));
+
+            DataSet ds = base.Consultar("FI_SP_ConsBenefDoCliente", parametros);
+            List<DML.Beneficiario> beneficiarios = ConverterBeneficiario(ds);
+
+            return beneficiarios;
+        }
+
+
+
+
+
+
         private List<DML.Cliente> Converter(DataSet ds)
         {
             List<DML.Cliente> lista = new List<DML.Cliente>();
@@ -161,5 +183,32 @@ namespace FI.AtividadeEntrevista.DAL
 
             return lista;
         }
+
+
+        private List<DML.Beneficiario> ConverterBeneficiario(DataSet ds)
+        {
+            List<DML.Beneficiario> lista = new List<DML.Beneficiario>();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    DML.Beneficiario beneficiario = new DML.Beneficiario();
+                    beneficiario.Id = row.Field<long>("Id");
+                    beneficiario.CPF = row.Field<string>("CPF");
+                    beneficiario.Nome = row.Field<string>("Nome");
+                    beneficiario.IdCliente = row.Field<long>("IdCliente");
+
+                    lista.Add(beneficiario);
+                }
+            }
+
+            return lista;
+        }
+
+
+
+
+
+
     }
 }

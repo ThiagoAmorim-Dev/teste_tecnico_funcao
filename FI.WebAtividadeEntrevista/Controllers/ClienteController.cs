@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using FI.AtividadeEntrevista.DML;
+using FI.WebAtividadeEntrevista.Models;
 
 namespace WebAtividadeEntrevista.Controllers
 {
@@ -165,5 +166,61 @@ namespace WebAtividadeEntrevista.Controllers
                 return Json(new { Result = "ERROR", Message = ex.Message });
             }
         }
+
+        //[HttpPost]
+        //public JsonResult AdicionarBeneficiario()
+        //{
+
+        //}
+
+        //[HttpPost]
+        //public JsonResult ExcluirBeneficiario(long Id)
+        //{
+
+        //}
+
+        //[HttpPost]
+        //public JsonResult DeleteBeneficiario(long Id)
+        //{
+
+        //}
+
+        //[HttpPost]
+        //public JsonResult EditarBeneficiario(Beneficiario beneficiario)
+        //{
+
+        //}
+
+
+        //[HttpGet]
+        //public JsonResult ObterBeneficiarioPorId(long Id)
+        //{
+
+        //}
+
+
+
+        [HttpGet]
+        public JsonResult BeneficiarioList(long Id)
+        {
+
+            BoCliente bo = new BoCliente();
+
+            try
+            {
+                List<Beneficiario> beneficiarios =  bo.BeneficiarioList(Id);
+                return Json(new { Result = "OK", Records = beneficiarios, TotalRecordCount = beneficiarios.Count });
+
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { Result = "ERROR", Message = ex.Message });
+            }
+        }
+
+
+
+
     }
 }
