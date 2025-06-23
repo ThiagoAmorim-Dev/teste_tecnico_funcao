@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FI.AtividadeEntrevista.DML;
 
 namespace FI.AtividadeEntrevista.BLL
 {
@@ -29,6 +30,12 @@ namespace FI.AtividadeEntrevista.BLL
         public void Alterar(DML.Cliente cliente)
         {
             DAL.DaoCliente cli = new DAL.DaoCliente();
+
+            DML.Cliente clienteCadastrado = Consultar(cliente.Id);
+               
+            if (VerificarExistencia(cliente.CPF) && clienteCadastrado.CPF != cliente.CPF)
+                throw new Exception("Já existe um cliente cadastrado com esse CPF no sistema.");
+
             cli.Alterar(cliente);
         }
 
