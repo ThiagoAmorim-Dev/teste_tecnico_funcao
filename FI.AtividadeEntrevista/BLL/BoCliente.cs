@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using FI.AtividadeEntrevista.DML;
@@ -20,6 +22,9 @@ namespace FI.AtividadeEntrevista.BLL
             if (VerificarExistencia(cliente.CPF))
                 throw new Exception("Já existe um cliente cadastrado com esse CPF no sistema.");
 
+            else if (!ValidarCPF(cliente.CPF))
+                throw new Exception("O CPF informado não é válido. Por favor, digite novamente.");
+
             return cli.Incluir(cliente);
         }
 
@@ -32,9 +37,12 @@ namespace FI.AtividadeEntrevista.BLL
             DAL.DaoCliente cli = new DAL.DaoCliente();
 
             DML.Cliente clienteCadastrado = Consultar(cliente.Id);
-               
+
             if (VerificarExistencia(cliente.CPF) && clienteCadastrado.CPF != cliente.CPF)
                 throw new Exception("Já existe um cliente cadastrado com esse CPF no sistema.");
+
+            else if (!ValidarCPF(cliente.CPF))
+                throw new Exception("O CPF informado não é válido. Por favor, digite novamente.");
 
             cli.Alterar(cliente);
         }
@@ -88,6 +96,65 @@ namespace FI.AtividadeEntrevista.BLL
         {
             DAL.DaoCliente cli = new DAL.DaoCliente();
             return cli.VerificarExistencia(CPF);
+        }
+
+
+
+        public bool ValidarCPF(string CPF)
+        {
+            CPF = new string(CPF.Where(char.IsDigit).ToArray());
+
+            //fazendo uma lista apenas com os números base do cpf
+            List<int> CpfBase = CPF.Where(char.IsDigit).Select(c => int.Parse(c.ToString())).ToList();
+
+            //pegando os últimos dois digitos do cpf (os dvs)
+            int dv1 = CpfBase[9];
+            int dv2 = CpfBase[10];
+
+            //realizando a verificação do primeiro dv
+            List<int> CpfSemOsDoisUltimosDigitos = CpfBase.Take(9).ToList();
+
+            int contador = 10;
+            int soma = 0; 
+
+            for (int i = 0;  i < CpfSemOsDoisUltimosDigitos.Count; i++)
+            {
+                CpfSemOsDoisUltimosDigitos[i] = CpfSemOsDoisUltimosDigitos[i] * contador;
+                contador--;
+            }
+
+            soma = CpfSemOsDoisUltimosDigitos.Sum() * 10;
+            int resultadoDv1 = soma % 11;
+
+            if (resultadoDv1 != dv1)
+                return false;
+
+
+
+            //realizando a verificação do segundo dv
+            List<int> CpfSemUltimoDigito = CpfBase.Take(10).ToList();
+            soma = 0;
+
+            contador = 11;
+            soma = 0;
+
+            for (int i = 0; i < CpfSemUltimoDigito.Count; i++)
+            {
+                CpfSemUltimoDigito[i] = CpfSemUltimoDigito[i] * contador;
+                contador--;
+            }
+
+            soma = CpfSemUltimoDigito.Sum() * 10;
+            int resultadoDv2 = soma % 11;
+
+            if (resultadoDv2 == 10 || resultadoDv2 == 1)
+                resultadoDv2 = 0;
+
+            if (resultadoDv2 != dv2)
+                return false;
+
+            //se passar pelas validações, retorna verdadeiro
+            return true;
         }
     }
 }
