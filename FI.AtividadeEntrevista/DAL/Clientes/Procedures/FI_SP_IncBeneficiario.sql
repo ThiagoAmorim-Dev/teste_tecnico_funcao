@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE FI_SP_IncBeneficiario
-    @CPF VARCHAR(11),
+    @CPF VARCHAR(14),
     @Nome VARCHAR(50),
     @IdCliente BIGINT
 AS

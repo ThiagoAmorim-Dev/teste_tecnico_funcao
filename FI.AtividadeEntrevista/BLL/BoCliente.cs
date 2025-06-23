@@ -108,6 +108,10 @@ namespace FI.AtividadeEntrevista.BLL
             //fazendo uma lista apenas com os números base do cpf
             List<int> CpfBase = CPF.Where(char.IsDigit).Select(c => int.Parse(c.ToString())).ToList();
 
+            //verifica se o cpf tem o número correto de caracteres
+            if (CpfBase.Count != 11)
+                return false;
+
             //pegando os últimos dois digitos do cpf (os dvs)
             int dv1 = CpfBase[9];
             int dv2 = CpfBase[10];
@@ -172,12 +176,16 @@ namespace FI.AtividadeEntrevista.BLL
         {
             DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
 
+            beneficiario.CPF = new string(beneficiario.CPF.Where(char.IsDigit).ToArray());
+
             if (!ValidarCPF(beneficiario.CPF))
                 throw new Exception("Cpf inválido. Por favor, digite novamente.");
 
             if (VerificarCpfBeneficiarioDoCliente(beneficiario.IdCliente, beneficiario.CPF))
                 throw new Exception("Já existe um beneficiário para esse cliente com esse CPF");
 
+
+            beneficiario.CPF = new string(beneficiario.CPF.Where(char.IsDigit).ToArray());
             clienteDAO.AdicionarBeneficiario(beneficiario);
 
         }

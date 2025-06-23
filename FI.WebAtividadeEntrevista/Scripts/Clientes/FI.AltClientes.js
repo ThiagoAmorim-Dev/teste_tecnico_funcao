@@ -14,6 +14,7 @@ $(document).ready(function () {
 
     }
 
+    //ALTERANDO CLIENTE
     $('#formCadastro').submit(function (e) {
         e.preventDefault();
 
@@ -51,16 +52,12 @@ $(document).ready(function () {
     })
 
 
+    //CRIANDO BENEFICIÁRIO
     $('#formBeneficiario').submit(function (e) {
         e.preventDefault();
 
         const nome = $('#NomeBeneficiario').val().trim();
         const cpf = $('#CPFBeneficiario').val().trim();
-
-        if (!nome || !cpf) {
-            alert("Preencha todos os campos.");
-            return;
-        }
 
         const url = window.location.pathname;
         const partes = url.split('/');
@@ -75,39 +72,41 @@ $(document).ready(function () {
                 IdCliente: idCliente
             },
             success: function (resposta) {
+
                 $('#tabelaBeneficiarios').append(`
                     <tr>
                         <td>${cpf}</td>
                         <td>${nome}</td>
                         <td class="text-center">
                             <button type="button" class="btn btn-primary">Alterar</button>
-                            <button type="button" class="btn btn-primary">Excluir</button>
+                            <button type="button" class="btn btn-danger btn-excluir-beneficiario" data-id="${resposta.Id}">Excluir</button>
                         </td>
                     </tr>
                 `);
 
-
+                // Limpa os campos do formulário
                 $('#NomeBeneficiario').val('');
                 $('#CPFBeneficiario').val('');
             },
-            error: function () {
-                alert("Erro ao incluir beneficiário.");
+            error: function (erro) {
+
+                if (erro.status == 400)
+                    ModalDialog("Ocorreu um erro", erro.responseJSON.Message);
+                else if (erro.status == 500)
+                    ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
             }
         });
     });
+  
 
-
-    
-
-
-
-
-
+    //QUANDO O MODAL ABRIR 
     $('#modalBeneficiario').on('shown.bs.modal', function () {
         const url = window.location.pathname;
         const partes = url.split('/');
         const idCliente = parseInt(partes[partes.length - 1]);
 
+
+        //LISTANDO BENEFICIÁRIOS
         $.ajax({
             type: 'GET',
             url: '/Cliente/BeneficiarioList?id=' + idCliente,
@@ -115,6 +114,8 @@ $(document).ready(function () {
                 $('#tabelaBeneficiarios').empty();
 
                 beneficiarios.forEach(function (b) {
+                    b.CPF = FormatarCpf(b.CPF);
+
                     $('#tabelaBeneficiarios').append(`
                     <tr>
                         <td>${b.CPF}</td>
@@ -132,26 +133,29 @@ $(document).ready(function () {
             }
         });
 
+
+        //EXCLUIR BENEFICIÁRIO
         $('#tabelaBeneficiarios').on('click', '.btn-excluir-beneficiario', function () {
             const idBeneficiario = $(this).data('id');
             const $linha = $(this).closest('tr');
 
-            if (confirm("Tem certeza que deseja excluir este beneficiário?")) {
-                $.ajax({
-                    type: 'POST',
-                    url: '/Cliente/DeleteBeneficiario?id=' + idBeneficiario,
-                    success: function () {
-                        $linha.remove();
-                    },
-                    error: function () {
-                        alert("Erro ao excluir beneficiário.");
-                    }
-                });
-            }
+            $.ajax({
+                type: 'POST',
+                url: '/Cliente/DeleteBeneficiario?id=' + idBeneficiario,
+                success: function () {
+                    $linha.remove();
+                },
+                error: function (erro) {
+                    ModalDialog("Erro ao excluir beneficiário", erro);
+                }
+            });
+            
         });
     });
     
 })
+
+
 
 function ModalDialog(titulo, texto) {
     var random = Math.random().toString().replace('.', '');
@@ -175,4 +179,11 @@ function ModalDialog(titulo, texto) {
 
     $('body').append(texto);
     $('#' + random).modal('show');
+}
+
+
+
+
+function FormatarCpf(cpf) {
+    return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
 }
