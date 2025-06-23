@@ -121,9 +121,76 @@
     <div class="row">
         <div class="col-lg-1">
             <div class="pull-left">
-                <button type="button" class="btn btn-primary">Beneficiários</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalBeneficiario">Beneficiários</button>
             </div>
         </div>
     </div>
 
 </form>
+
+
+
+
+
+<div class="modal fade" id="modalBeneficiario" tabindex="-1" role="dialog" aria-labelledby="modalBeneficiarioLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalBeneficiarioLabel">Beneficiários</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form id="formBeneficiario">
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="NomeBeneficiario">Nome</label>
+                                <input type="text" class="form-control" id="NomeBeneficiario" name="Nome" maxlength="50" placeholder="João da silva" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="CPFBeneficiario">CPF</label>
+                                <input type="text" class="form-control" id="CPFBeneficiario" name="CPF" placeholder="Ex.: 999.999.999-99" maxlength="14" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-success">Incluir</button>
+                        </div>
+                    </div>
+
+
+                    <div class="row mt-4" style="margin-top: 30px;">
+                        <div class="col-12">
+                            <table class="table table-bordered table-striped table-sm">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>CPF</th>
+                                        <th>Nome</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaBeneficiarios">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+

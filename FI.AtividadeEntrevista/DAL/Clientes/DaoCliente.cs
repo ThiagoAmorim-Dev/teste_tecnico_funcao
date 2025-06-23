@@ -1,8 +1,10 @@
-﻿using FI.AtividadeEntrevista.DML;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using FI.AtividadeEntrevista.BLL;
+using FI.AtividadeEntrevista.DML;
 
 namespace FI.AtividadeEntrevista.DAL
 {
@@ -145,7 +147,7 @@ namespace FI.AtividadeEntrevista.DAL
         public List<DML.Beneficiario> BeneficiarioList(long Id)
         {
             List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
-            parametros.Add(new System.Data.SqlClient.SqlParameter("Id", Id));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("IdCliente", Id));
 
             DataSet ds = base.Consultar("FI_SP_ConsBenefDoCliente", parametros);
             List<DML.Beneficiario> beneficiarios = ConverterBeneficiario(ds);
@@ -153,9 +155,39 @@ namespace FI.AtividadeEntrevista.DAL
             return beneficiarios;
         }
 
+        /// <summary>
+        /// Adicionando beneficiario do cliente
+        /// </summary>
+        
+        public void AdicionarBeneficiario(DML.Beneficiario beneficiario)
+        {
+            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+
+            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", beneficiario.CPF));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("NOME", beneficiario.Nome));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("IDCLIENTE", beneficiario.IdCliente));
+
+            base.Executar("FI_SP_IncBeneficiario", parametros);
+        }
 
 
+        public bool VerificarCpfBeneficiarioDoCliente(long IdCliente, string cpf)
+        {
+            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
 
+            parametros.Add(new System.Data.SqlClient.SqlParameter("IDCLIENTE", IdCliente));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", cpf));
+
+            DataSet ds = base.Consultar("FI_SP_VerificarCpfBeneficiario", parametros);
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                int resultado = Convert.ToInt32(ds.Tables[0].Rows[0]["Existe"]);
+                return resultado == 1;
+            }
+
+            return false;
+        }
 
 
         private List<DML.Cliente> Converter(DataSet ds)

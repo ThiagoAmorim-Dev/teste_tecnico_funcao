@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using FI.AtividadeEntrevista.DML;
 using FI.WebAtividadeEntrevista.Models;
+using System.Web.Caching;
 
 namespace WebAtividadeEntrevista.Controllers
 {
@@ -163,21 +164,46 @@ namespace WebAtividadeEntrevista.Controllers
             }
             catch (Exception ex)
             {
+                Response.StatusCode = 400;
                 return Json(new { Result = "ERROR", Message = ex.Message });
             }
         }
 
-        //[HttpPost]
-        //public JsonResult AdicionarBeneficiario()
-        //{
+        [HttpPost]
+        public JsonResult AdicionarBeneficiario(BeneficiarioModel beneficiario)
+        {
 
-        //}
+            BoCliente bo = new BoCliente();
+            if (!this.ModelState.IsValid)
+            {
+                List<string> erros = (from item in ModelState.Values
+                                      from error in item.Errors
+                                      select error.ErrorMessage).ToList();
 
-        //[HttpPost]
-        //public JsonResult ExcluirBeneficiario(long Id)
-        //{
+                Response.StatusCode = 400;
+                return Json(string.Join(Environment.NewLine, erros));
+            }
+            else
+            {
+                try
+                {
+                    bo.AdicionarBeneficiario(new Beneficiario
+                    {
+                        CPF = beneficiario.CPF,
+                        Nome = beneficiario.Nome,
+                        IdCliente = beneficiario.IdCliente
+                    });
 
-        //}
+                    return Json("Beneficiário cadastrado com sucesso");
+                }
+                catch(Exception ex)
+                {
+                    Response.StatusCode = 400;
+                    return Json(new { Result = "ERROR", Message = ex.Message });
+                }
+            }
+        }
+
 
         //[HttpPost]
         //public JsonResult DeleteBeneficiario(long Id)
@@ -209,7 +235,7 @@ namespace WebAtividadeEntrevista.Controllers
             try
             {
                 List<Beneficiario> beneficiarios =  bo.BeneficiarioList(Id);
-                return Json(new { Result = "OK", Records = beneficiarios, TotalRecordCount = beneficiarios.Count });
+                return Json(beneficiarios, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)

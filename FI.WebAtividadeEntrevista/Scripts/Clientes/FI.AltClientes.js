@@ -49,6 +49,84 @@ $(document).ready(function () {
             }
         });
     })
+
+
+    $('#formBeneficiario').submit(function (e) {
+        e.preventDefault();
+
+        const nome = $('#NomeBeneficiario').val().trim();
+        const cpf = $('#CPFBeneficiario').val().trim();
+
+        if (!nome || !cpf) {
+            alert("Preencha todos os campos.");
+            return;
+        }
+
+        const url = window.location.pathname;
+        const partes = url.split('/');
+        const idCliente = parseInt(partes[partes.length - 1]);
+
+        $.ajax({
+            type: 'POST',
+            url: '/Cliente/AdicionarBeneficiario',
+            data: {
+                Nome: nome,
+                CPF: cpf,
+                IdCliente: idCliente
+            },
+            success: function (resposta) {
+                $('#tabelaBeneficiarios').append(`
+                    <tr>
+                        <td>${cpf}</td>
+                        <td>${nome}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-primary">Alterar</button>
+                            <button type="button" class="btn btn-primary">Excluir</button>
+                        </td>
+                    </tr>
+                `);
+
+
+                $('#NomeBeneficiario').val('');
+                $('#CPFBeneficiario').val('');
+            },
+            error: function () {
+                alert("Erro ao incluir beneficiário.");
+            }
+        });
+    });
+
+
+
+    $('#modalBeneficiario').on('shown.bs.modal', function () {
+        const url = window.location.pathname;
+        const partes = url.split('/');
+        const idCliente = parseInt(partes[partes.length - 1]);
+
+        $.ajax({
+            type: 'GET',
+            url: '/Cliente/BeneficiarioList?id=' + idCliente,
+            success: function (beneficiarios) {
+                $('#tabelaBeneficiarios').empty();
+
+                beneficiarios.forEach(function (b) {
+                    $('#tabelaBeneficiarios').append(`
+                    <tr>
+                        <td>${b.CPF}</td>
+                        <td>${b.Nome}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-primary">Alterar</button>
+                            <button type="button" class="btn btn-primary">Excluir</button>
+                        </td>
+                    </tr>
+                `);
+                });
+            },
+            error: function () {
+                alert("Erro ao carregar beneficiários.");
+            }
+        });
+    });
     
 })
 

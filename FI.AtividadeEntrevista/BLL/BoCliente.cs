@@ -168,6 +168,25 @@ namespace FI.AtividadeEntrevista.BLL
         }
 
 
+        public void AdicionarBeneficiario(DML.Beneficiario beneficiario)
+        {
+            DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
+
+            if (!ValidarCPF(beneficiario.CPF))
+                throw new Exception("Cpf inválido. Por favor, digite novamente.");
+
+            if (VerificarCpfBeneficiarioDoCliente(beneficiario.IdCliente, beneficiario.CPF))
+                throw new Exception("Já existe um beneficiário para esse cliente com esse CPF");
+
+            clienteDAO.AdicionarBeneficiario(beneficiario);
+
+        }
+
+        public bool VerificarCpfBeneficiarioDoCliente(long IdCliente, string cpf)
+        {
+            DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
+            return clienteDAO.VerificarCpfBeneficiarioDoCliente(IdCliente, cpf);
+        }
 
 
     }
