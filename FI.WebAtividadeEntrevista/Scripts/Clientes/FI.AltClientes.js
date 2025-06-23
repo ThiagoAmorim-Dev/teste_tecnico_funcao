@@ -97,6 +97,11 @@ $(document).ready(function () {
     });
 
 
+    
+
+
+
+
 
     $('#modalBeneficiario').on('shown.bs.modal', function () {
         const url = window.location.pathname;
@@ -116,7 +121,7 @@ $(document).ready(function () {
                         <td>${b.Nome}</td>
                         <td class="text-center">
                             <button type="button" class="btn btn-primary">Alterar</button>
-                            <button type="button" class="btn btn-primary">Excluir</button>
+                            <button type="button" class="btn btn-danger btn-excluir-beneficiario" data-id="${b.Id}">Excluir</button>
                         </td>
                     </tr>
                 `);
@@ -124,6 +129,24 @@ $(document).ready(function () {
             },
             error: function () {
                 alert("Erro ao carregar beneficiários.");
+            }
+        });
+
+        $('#tabelaBeneficiarios').on('click', '.btn-excluir-beneficiario', function () {
+            const idBeneficiario = $(this).data('id');
+            const $linha = $(this).closest('tr');
+
+            if (confirm("Tem certeza que deseja excluir este beneficiário?")) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Cliente/DeleteBeneficiario?id=' + idBeneficiario,
+                    success: function () {
+                        $linha.remove();
+                    },
+                    error: function () {
+                        alert("Erro ao excluir beneficiário.");
+                    }
+                });
             }
         });
     });

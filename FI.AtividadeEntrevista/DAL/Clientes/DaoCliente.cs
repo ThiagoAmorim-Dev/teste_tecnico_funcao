@@ -238,6 +238,16 @@ namespace FI.AtividadeEntrevista.DAL
         }
 
 
+        public void DeleteBeneficiario(long Id)
+        {
+            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+
+            parametros.Add(new System.Data.SqlClient.SqlParameter("IdBeneficiario", Id));
+
+            base.Executar("FI_SP_ExcluirBeneficiario", parametros);
+        }
+
+
 
 
 

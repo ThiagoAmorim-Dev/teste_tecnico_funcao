@@ -205,11 +205,23 @@ namespace WebAtividadeEntrevista.Controllers
         }
 
 
-        //[HttpPost]
-        //public JsonResult DeleteBeneficiario(long Id)
-        //{
+        [HttpPost]
+        public JsonResult DeleteBeneficiario(long Id)
+        {
 
-        //}
+            BoCliente bo = new BoCliente();
+
+            try
+            {
+                bo.DeleteBeneficiario(Id);
+                return Json("Beneficiário deletado com sucesso");
+            }
+            catch(Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { Result = "ERROR", Message = ex.Message });
+            }
+        }
 
         //[HttpPost]
         //public JsonResult EditarBeneficiario(Beneficiario beneficiario)

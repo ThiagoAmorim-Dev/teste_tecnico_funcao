@@ -61,6 +61,7 @@
     <Content Include="DAL\Clientes\Procedures\FI_SP_IncBeneficiario.sql" />
     <Content Include="DAL\Clientes\Procedures\FI_SP_IncCliente.sql" />
     <Content Include="DAL\Clientes\Procedures\FI_SP_ConsBenefDoCliente.sql" />
+    <Content Include="DAL\Clientes\Procedures\FI_SP_ExcluirBeneficiario.sql" />
     <Content Include="DAL\Clientes\Procedures\FI_SP_VerificarCpfBeneficiario.sql" />
     <Content Include="DAL\Clientes\Procedures\FI_SP_PesqCliente.sql" />
   </ItemGroup>

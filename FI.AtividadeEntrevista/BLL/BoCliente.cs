@@ -188,6 +188,11 @@ namespace FI.AtividadeEntrevista.BLL
             return clienteDAO.VerificarCpfBeneficiarioDoCliente(IdCliente, cpf);
         }
 
+        public void DeleteBeneficiario(long Id)
+        {
+            DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
+            clienteDAO.DeleteBeneficiario(Id);
+        }
 
     }
 }
