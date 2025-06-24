@@ -159,7 +159,7 @@ namespace FI.AtividadeEntrevista.DAL
         /// Adicionando beneficiario do cliente
         /// </summary>
         
-        public void AdicionarBeneficiario(DML.Beneficiario beneficiario)
+        public long AdicionarBeneficiario(DML.Beneficiario beneficiario)
         {
             List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
 
@@ -167,7 +167,13 @@ namespace FI.AtividadeEntrevista.DAL
             parametros.Add(new System.Data.SqlClient.SqlParameter("NOME", beneficiario.Nome));
             parametros.Add(new System.Data.SqlClient.SqlParameter("IDCLIENTE", beneficiario.IdCliente));
 
-            base.Executar("FI_SP_IncBeneficiario", parametros);
+            DataSet ds = base.Consultar("FI_SP_IncBeneficiario", parametros);
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                return Convert.ToInt64(ds.Tables[0].Rows[0]["Id"]);
+            }
+
+            return 0;
         }
 
 
@@ -247,6 +253,18 @@ namespace FI.AtividadeEntrevista.DAL
             base.Executar("FI_SP_ExcluirBeneficiario", parametros);
         }
 
+
+        public void EditarBeneficiario(Beneficiario beneficiario)
+        {
+            List<System.Data.SqlClient.SqlParameter> parametros = new List<System.Data.SqlClient.SqlParameter>();
+
+            parametros.Add(new System.Data.SqlClient.SqlParameter("ID", beneficiario.Id));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("CPF", beneficiario.CPF));
+            parametros.Add(new System.Data.SqlClient.SqlParameter("NOME", beneficiario.Nome));
+
+            base.Executar("FI_SP_AltBeneficiario", parametros);
+
+        }
 
 
 

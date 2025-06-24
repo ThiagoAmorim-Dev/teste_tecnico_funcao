@@ -172,7 +172,7 @@ namespace FI.AtividadeEntrevista.BLL
         }
 
 
-        public void AdicionarBeneficiario(DML.Beneficiario beneficiario)
+        public long AdicionarBeneficiario(DML.Beneficiario beneficiario)
         {
             DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
 
@@ -186,7 +186,7 @@ namespace FI.AtividadeEntrevista.BLL
 
 
             beneficiario.CPF = new string(beneficiario.CPF.Where(char.IsDigit).ToArray());
-            clienteDAO.AdicionarBeneficiario(beneficiario);
+            return clienteDAO.AdicionarBeneficiario(beneficiario);
 
         }
 
@@ -200,6 +200,15 @@ namespace FI.AtividadeEntrevista.BLL
         {
             DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
             clienteDAO.DeleteBeneficiario(Id);
+        }
+
+
+        public void EditarBeneficiario(Beneficiario beneficiario)
+        {
+            DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
+
+            beneficiario.CPF = new string(beneficiario.CPF.Where(char.IsDigit).ToArray());
+            clienteDAO.EditarBeneficiario(beneficiario);
         }
 
     }

@@ -170,7 +170,7 @@ namespace WebAtividadeEntrevista.Controllers
         }
 
         [HttpPost]
-        public JsonResult AdicionarBeneficiario(BeneficiarioModel beneficiario)
+        public JsonResult AdicionarBeneficiario(BeneficiarioModel beneficiarioModel)
         {
 
             BoCliente bo = new BoCliente();
@@ -187,14 +187,14 @@ namespace WebAtividadeEntrevista.Controllers
             {
                 try
                 {
-                    bo.AdicionarBeneficiario(new Beneficiario
+                    long Id = bo.AdicionarBeneficiario(new Beneficiario
                     {
-                        CPF = beneficiario.CPF,
-                        Nome = beneficiario.Nome,
-                        IdCliente = beneficiario.IdCliente
+                        CPF = beneficiarioModel.CPF,
+                        Nome = beneficiarioModel.Nome,
+                        IdCliente = beneficiarioModel.IdCliente
                     });
 
-                    return Json("Beneficiário cadastrado com sucesso");
+                    return Json(new {Id = Id});
                 }
                 catch(Exception ex)
                 {
@@ -223,20 +223,29 @@ namespace WebAtividadeEntrevista.Controllers
             }
         }
 
-        //[HttpPost]
-        //public JsonResult EditarBeneficiario(Beneficiario beneficiario)
-        //{
+        [HttpPost]
+        public JsonResult EditarBeneficiario(BeneficiarioModel beneficiarioModel)
+        {
 
-        //}
+            BoCliente bo = new BoCliente();
 
+            try
+            {
+                bo.EditarBeneficiario(new Beneficiario
+                {
+                    Id = beneficiarioModel.Id,
+                    CPF = beneficiarioModel.CPF,
+                    Nome = beneficiarioModel.Nome
+                });
+                return Json("Beneficiário alterado com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { Result = "ERROR", Message = ex.Message });
+            }
 
-        //[HttpGet]
-        //public JsonResult ObterBeneficiarioPorId(long Id)
-        //{
-
-        //}
-
-
+        }
 
         [HttpGet]
         public JsonResult BeneficiarioList(long Id)

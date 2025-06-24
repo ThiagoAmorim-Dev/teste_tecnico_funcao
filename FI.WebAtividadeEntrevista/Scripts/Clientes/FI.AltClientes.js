@@ -1,4 +1,5 @@
-﻿
+﻿let beneficiarioEmEdicao = null;
+
 $(document).ready(function () {
     if (obj) {
         $('#formCadastro #Nome').val(obj.Nome);
@@ -11,102 +12,47 @@ $(document).ready(function () {
         $('#formCadastro #Logradouro').val(obj.Logradouro);
         $('#formCadastro #Telefone').val(obj.Telefone);
         $('#formCadastro #CPF').val(obj.CPF);
-
     }
 
-    //ALTERANDO CLIENTE
     $('#formCadastro').submit(function (e) {
         e.preventDefault();
-
-        console.log($(this).find("#CPF").val());
 
         $.ajax({
             url: urlPost,
             method: "POST",
             data: {
-                "NOME": $(this).find("#Nome").val(),
-                "CEP": $(this).find("#CEP").val(),
-                "Email": $(this).find("#Email").val(),
-                "Sobrenome": $(this).find("#Sobrenome").val(),
-                "Nacionalidade": $(this).find("#Nacionalidade").val(),
-                "Estado": $(this).find("#Estado").val(),
-                "Cidade": $(this).find("#Cidade").val(),
-                "Logradouro": $(this).find("#Logradouro").val(),
-                "Telefone": $(this).find("#Telefone").val(),
-                "CPF": $(this).find("#CPF").val()
+                "NOME": $("#Nome").val(),
+                "CEP": $("#CEP").val(),
+                "Email": $("#Email").val(),
+                "Sobrenome": $("#Sobrenome").val(),
+                "Nacionalidade": $("#Nacionalidade").val(),
+                "Estado": $("#Estado").val(),
+                "Cidade": $("#Cidade").val(),
+                "Logradouro": $("#Logradouro").val(),
+                "Telefone": $("#Telefone").val(),
+                "CPF": $("#CPF").val()
             },
-            error:
-            function (r) {
+            error: function (r) {
                 if (r.status == 400)
                     ModalDialog("Ocorreu um erro", r.responseJSON);
                 else if (r.status == 500)
                     ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
             },
-            success:
-            function (r) {
+            success: function (r) {
                 ModalDialog("Sucesso!", r)
-                $("#formCadastro")[0].reset();                                
+                $("#formCadastro")[0].reset();
                 window.location.href = urlRetorno;
             }
         });
-    })
-
-
-    //CRIANDO BENEFICIÁRIO
-    $('#formBeneficiario').submit(function (e) {
-        e.preventDefault();
-
-        const nome = $('#NomeBeneficiario').val().trim();
-        const cpf = $('#CPFBeneficiario').val().trim();
-
-        const url = window.location.pathname;
-        const partes = url.split('/');
-        const idCliente = parseInt(partes[partes.length - 1]);
-
-        $.ajax({
-            type: 'POST',
-            url: '/Cliente/AdicionarBeneficiario',
-            data: {
-                Nome: nome,
-                CPF: cpf,
-                IdCliente: idCliente
-            },
-            success: function (resposta) {
-
-                $('#tabelaBeneficiarios').append(`
-                    <tr>
-                        <td>${cpf}</td>
-                        <td>${nome}</td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-primary">Alterar</button>
-                            <button type="button" class="btn btn-danger btn-excluir-beneficiario" data-id="${resposta.Id}">Excluir</button>
-                        </td>
-                    </tr>
-                `);
-
-                // Limpa os campos do formulário
-                $('#NomeBeneficiario').val('');
-                $('#CPFBeneficiario').val('');
-            },
-            error: function (erro) {
-
-                if (erro.status == 400)
-                    ModalDialog("Ocorreu um erro", erro.responseJSON.Message);
-                else if (erro.status == 500)
-                    ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
-            }
-        });
     });
-  
 
-    //QUANDO O MODAL ABRIR 
+    // Evento ao abrir o modal
     $('#modalBeneficiario').on('shown.bs.modal', function () {
         const url = window.location.pathname;
         const partes = url.split('/');
         const idCliente = parseInt(partes[partes.length - 1]);
 
-
-        //LISTANDO BENEFICIÁRIOS
+        // LISTANDO BENEFICIÁRIOS
         $.ajax({
             type: 'GET',
             url: '/Cliente/BeneficiarioList?id=' + idCliente,
@@ -121,7 +67,7 @@ $(document).ready(function () {
                         <td>${b.CPF}</td>
                         <td>${b.Nome}</td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-primary">Alterar</button>
+                            <button type="button" class="btn btn-primary btn-alterar-beneficiario" data-id="${b.Id}">Alterar</button>
                             <button type="button" class="btn btn-danger btn-excluir-beneficiario" data-id="${b.Id}">Excluir</button>
                         </td>
                     </tr>
@@ -132,34 +78,133 @@ $(document).ready(function () {
                 alert("Erro ao carregar beneficiários.");
             }
         });
+    });
 
+    // Submissão do formulário de beneficiário (inserir ou editar)
+    $('#formBeneficiario').submit(function (e) {
+        e.preventDefault();
 
-        //EXCLUIR BENEFICIÁRIO
-        $('#tabelaBeneficiarios').on('click', '.btn-excluir-beneficiario', function () {
-            const idBeneficiario = $(this).data('id');
-            const $linha = $(this).closest('tr');
+        const nome = $('#NomeBeneficiario').val().trim();
+        const cpf = $('#CPFBeneficiario').val().trim();
+
+        if (!nome || !cpf) {
+            ModalDialog("Atenção", "Preencha todos os campos.");
+            return;
+        }
+
+        if (beneficiarioEmEdicao) {
+            // Modo edição
+            $.ajax({
+                type: 'POST',
+                url: '/Cliente/EditarBeneficiario',
+                data: {
+                    Id: beneficiarioEmEdicao,
+                    Nome: nome,
+                    CPF: cpf
+                },
+                success: function () {
+                    ModalDialog("Sucesso", "Beneficiário alterado com sucesso.");
+                    $('#modalBeneficiario').modal('hide');
+                },
+                error: function () {
+                    ModalDialog("Erro", "Erro ao alterar o beneficiário.");
+                },
+                complete: function () {
+                    beneficiarioEmEdicao = null;
+                    resetarFormularioBeneficiario();
+                }
+            });
+        } else {
+            // Modo criação
+            const url = window.location.pathname;
+            const partes = url.split('/');
+            const idCliente = parseInt(partes[partes.length - 1]);
 
             $.ajax({
                 type: 'POST',
-                url: '/Cliente/DeleteBeneficiario?id=' + idBeneficiario,
-                success: function () {
-                    $linha.remove();
+                url: '/Cliente/AdicionarBeneficiario',
+                data: {
+                    Nome: nome,
+                    CPF: cpf,
+                    IdCliente: idCliente
+                },
+                success: function (resposta) {
+                    $('#tabelaBeneficiarios').append(`
+                        <tr>
+                            <td>${cpf}</td>
+                            <td>${nome}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-primary btn-alterar-beneficiario" data-id="${resposta.Id}">Alterar</button>
+                                <button type="button" class="btn btn-danger btn-excluir-beneficiario" data-id="${resposta.Id}">Excluir</button>
+                            </td>
+                        </tr>
+                    `);
+
+                    $('#NomeBeneficiario').val('');
+                    $('#CPFBeneficiario').val('');
                 },
                 error: function (erro) {
-                    ModalDialog("Erro ao excluir beneficiário", erro);
+                    if (erro.status == 400)
+                        ModalDialog("Ocorreu um erro", erro.responseJSON.Message);
+                    else if (erro.status == 500)
+                        ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
                 }
             });
-            
+        }
+    });
+
+    // CLICANDO EM ALTERAR
+    $('#tabelaBeneficiarios').on('click', '.btn-alterar-beneficiario', function () {
+        const $linha = $(this).closest('tr');
+        const cpf = $linha.find('td:eq(0)').text().trim();
+        const nome = $linha.find('td:eq(1)').text().trim();
+        const id = $(this).data('id');
+
+        $('#NomeBeneficiario').val(nome);
+        $('#CPFBeneficiario').val(cpf);
+        beneficiarioEmEdicao = id;
+
+        $('#acoesBeneficiario').html(`
+            <button type="submit" class="btn btn-primary" id="btnConfirmarAlteracao">Confirmar</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelarAlteracao">Cancelar</button>
+        `);
+    });
+
+    // CANCELAR ALTERAÇÃO
+    $('#acoesBeneficiario').on('click', '#btnCancelarAlteracao', function () {
+        beneficiarioEmEdicao = null;
+        resetarFormularioBeneficiario();
+    });
+
+    // EXCLUIR BENEFICIÁRIO
+    $('#tabelaBeneficiarios').on('click', '.btn-excluir-beneficiario', function () {
+        const idBeneficiario = $(this).data('id');
+        const $linha = $(this).closest('tr');
+
+        $.ajax({
+            type: 'POST',
+            url: '/Cliente/DeleteBeneficiario?id=' + idBeneficiario,
+            success: function () {
+                $linha.remove();
+            },
+            error: function (erro) {
+                ModalDialog("Erro ao excluir beneficiário", erro);
+            }
         });
     });
-    
-})
+});
 
-
+function resetarFormularioBeneficiario() {
+    $('#NomeBeneficiario').val('');
+    $('#CPFBeneficiario').val('');
+    $('#acoesBeneficiario').html(`
+        <button type="submit" class="btn btn-success" id="btnIncluir">Incluir</button>
+    `);
+}
 
 function ModalDialog(titulo, texto) {
     var random = Math.random().toString().replace('.', '');
-    var texto = '<div id="' + random + '" class="modal fade">                                                               ' +
+    var html = '<div id="' + random + '" class="modal fade">                                                               ' +
         '        <div class="modal-dialog">                                                                                 ' +
         '            <div class="modal-content">                                                                            ' +
         '                <div class="modal-header">                                                                         ' +
@@ -171,18 +216,14 @@ function ModalDialog(titulo, texto) {
         '                </div>                                                                                             ' +
         '                <div class="modal-footer">                                                                         ' +
         '                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>             ' +
-        '                                                                                                                   ' +
         '                </div>                                                                                             ' +
-        '            </div><!-- /.modal-content -->                                                                         ' +
-        '  </div><!-- /.modal-dialog -->                                                                                    ' +
-        '</div> <!-- /.modal -->                                                                                        ';
+        '            </div>                                                                                                 ' +
+        '        </div>                                                                                                     ' +
+        '</div>';
 
-    $('body').append(texto);
+    $('body').append(html);
     $('#' + random).modal('show');
 }
-
-
-
 
 function FormatarCpf(cpf) {
     return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
