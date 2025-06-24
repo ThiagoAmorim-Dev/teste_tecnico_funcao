@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -224,6 +225,12 @@ namespace FI.AtividadeEntrevista.BLL
             DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
 
             beneficiario.CPF = new string(beneficiario.CPF.Where(char.IsDigit).ToArray());
+            if (!ValidarCPF(beneficiario.CPF))
+                throw new Exception("CPF inválido. Por favor, digite novamente.");
+
+            if (VerificarCpfBeneficiarioDoCliente(beneficiario.IdCliente, beneficiario.CPF))
+                throw new Exception("Já existe um beneficiário vinculado a esse cliente com esse cpf.");
+
             clienteDAO.EditarBeneficiario(beneficiario);
         }
 

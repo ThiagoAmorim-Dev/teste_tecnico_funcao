@@ -68,7 +68,7 @@ $(document).ready(function () {
                         <td>${b.Nome}</td>
                         <td class="text-center">
                             <button type="button" class="btn btn-primary btn-alterar-beneficiario" data-id="${b.Id}">Alterar</button>
-                            <button type="button" class="btn btn-danger btn-excluir-beneficiario" data-id="${b.Id}">Excluir</button>
+                            <button type="button" class="btn btn-primary btn-excluir-beneficiario" data-id="${b.Id}">Excluir</button>
                         </td>
                     </tr>
                 `);
@@ -106,8 +106,9 @@ $(document).ready(function () {
                     ModalDialog("Sucesso", "Beneficiário alterado com sucesso.");
                     $('#modalBeneficiario').modal('hide');
                 },
-                error: function () {
-                    ModalDialog("Erro", "Erro ao alterar o beneficiário.");
+                error: function (erro) {
+                    console.log(erro);
+                    ModalDialog("Erro", erro.responseJSON.Message);
                 },
                 complete: function () {
                     beneficiarioEmEdicao = null;
@@ -135,7 +136,7 @@ $(document).ready(function () {
                             <td>${nome}</td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-primary btn-alterar-beneficiario" data-id="${resposta.Id}">Alterar</button>
-                                <button type="button" class="btn btn-danger btn-excluir-beneficiario" data-id="${resposta.Id}">Excluir</button>
+                                <button type="button" class="btn btn-primary btn-excluir-beneficiario" data-id="${resposta.Id}">Excluir</button>
                             </td>
                         </tr>
                     `);
