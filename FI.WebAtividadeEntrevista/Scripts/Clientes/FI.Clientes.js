@@ -1,4 +1,6 @@
-﻿
+﻿let beneficiariosTemp = [];
+
+
 $(document).ready(function () {
 
     
@@ -28,12 +30,146 @@ $(document).ready(function () {
                     ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
             },
             success:
-            function (r) {
-                ModalDialog("Sucesso!", r)
-                $("#formCadastro")[0].reset();
+                function (r) {
+                ModalDialog("Sucesso!", "Cliente cadastro com sucesso.")
+                    $("#formCadastro")[0].reset();
+
+                    if (beneficiariosTemp.length > 0) {
+
+                        console.log("ID do cliente:", r.Id);
+                        console.log("ID do cliente:", beneficiariosTemp);
+
+
+                        beneficiariosTemp.forEach(function (b) {
+                            b.IdCliente = r.Id;
+                        });
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/Cliente/AdicionarBeneficiarioEmlote",
+                            contentType: "application/json",
+                            data: JSON.stringify({
+                                Beneficiarios: beneficiariosTemp
+                            }),
+                            success: function () {
+                                ModalDialog("Sucesso", "Beneficiários adicionados.");
+                                $('#tabelaBeneficiarios').empty();
+                                beneficiariosTemp = [];
+                            },
+                            error: function () {
+                                ModalDialog("Erro", "Erro ao adicionar os beneficiários.");
+                            }
+                        });
+                    }
+
+
             }
         });
     })
+
+    //CLICANDO EM ALTERAR
+    let indiceEdicao = -1;
+
+    $(document).on('click', '.btn-editar-beneficiario', function () {
+        const row = $(this).closest('tr');
+        indiceEdicao = row.index(); 
+        const beneficiario = beneficiariosTemp[indiceEdicao];
+
+        $('#NomeBeneficiario').val(beneficiario.Nome);
+        $('#CPFBeneficiario').val(beneficiario.CPF);
+
+        $('#acoesBeneficiario').html(`
+            <button type="submit" class="btn btn-primary" id="btnConfirmarAlteracao">Confirmar</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelarAlteracao">Cancelar</button>
+        `);
+    });
+
+
+    //CANCELANDO ALTERAÇÃO
+    $(document).on('click', '#cancelarEdicao', function () {
+        indiceEdicao = -1;
+        $('#NomeBeneficiario').val('');
+        $('#CPFBeneficiario').val('');
+        $('#acoesBeneficiario').html(`<button type="submit" class="btn btn-success">Incluir</button>`);
+    });
+
+    //CONFIRMANDO ALTERAÇÃO ou INCLUINDO BENEFICIÁRIO
+    $('#formBeneficiario').submit(function (e) {
+        e.preventDefault();
+
+        const nome = $('#NomeBeneficiario').val().trim();
+        const cpf = $('#CPFBeneficiario').val().trim();
+        if (nome === "" || cpf === "") return;
+
+        if (indiceEdicao >= 0) {
+            // Edição
+            beneficiariosTemp[indiceEdicao].Nome = nome;
+            beneficiariosTemp[indiceEdicao].CPF = cpf;
+
+            const row = $('#tabelaBeneficiarios').find('tr').eq(indiceEdicao);
+            row.find('td').eq(0).text(cpf);
+            row.find('td').eq(1).text(nome);
+
+            indiceEdicao = -1;
+
+            $('#acoesBeneficiario').html(`<button type="submit" class="btn btn-success">Incluir</button>`);
+        } else {
+            // Inclusão
+            beneficiariosTemp.push({ Nome: nome, CPF: cpf, IdCliente: 0 });
+
+            $('#tabelaBeneficiarios').append(`
+            <tr>
+                <td>${cpf}</td>
+                <td>${nome}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-primary btn-editar-beneficiario">Alterar</button>
+                    <button type="button" class="btn btn-primary btn-remover-beneficiario">Excluir</button>
+                </td>
+            </tr>
+        `);
+        }
+
+        $('#NomeBeneficiario').val('');
+        $('#CPFBeneficiario').val('');
+    });
+
+
+    //REMOVER BENEFICIÁRIO
+    $(document).on('click', '.btn-remover-beneficiario', function () {
+        const row = $(this).closest('tr');
+        const index = row.index();
+        beneficiariosTemp.splice(index, 1); 
+        row.remove(); 
+    });
+
+
+
+
+
+
+
+
+    // Evento ao abrir o modal
+    $('#modalBeneficiario').on('shown.bs.modal', function () {
+
+
+        
+
+
+    });
+
+    
+
+
+
+
+
+
+
+
+
+
+
 
 })
 

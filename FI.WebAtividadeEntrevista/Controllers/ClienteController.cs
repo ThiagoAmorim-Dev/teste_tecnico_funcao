@@ -7,24 +7,24 @@ using System.Web;
 using System.Web.Mvc;
 using FI.AtividadeEntrevista.DML;
 using FI.WebAtividadeEntrevista.Models;
-using System.Web.Caching;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebAtividadeEntrevista.Controllers
 {
     public class ClienteController : Controller
     {
-        public ActionResult Index()
+        public System.Web.Mvc.ActionResult Index()
         {
             return View();
         }
 
 
-        public ActionResult Incluir()
+        public System.Web.Mvc.ActionResult Incluir()
         {
             return View();
         }
 
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public JsonResult Incluir(ClienteModel model)
         {
             BoCliente bo = new BoCliente();
@@ -57,7 +57,7 @@ namespace WebAtividadeEntrevista.Controllers
 
                     });
 
-                    return Json("Cadastro efetuado com sucesso");
+                    return Json(new {Id = model.Id});
                 }
                 catch(Exception ex)
                 {
@@ -67,7 +67,7 @@ namespace WebAtividadeEntrevista.Controllers
             }
         }
 
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public JsonResult Alterar(ClienteModel model)
         {
             BoCliente bo = new BoCliente();
@@ -110,8 +110,8 @@ namespace WebAtividadeEntrevista.Controllers
             }
         }
 
-        [HttpGet]
-        public ActionResult Alterar(long id)
+        [System.Web.Mvc.HttpGet]
+        public System.Web.Mvc.ActionResult Alterar(long id)
         {
             BoCliente bo = new BoCliente();
             Cliente cliente = bo.Consultar(id);
@@ -141,7 +141,7 @@ namespace WebAtividadeEntrevista.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public JsonResult ClienteList(int jtStartIndex = 0, int jtPageSize = 0, string jtSorting = null)
         {
             try
@@ -169,7 +169,7 @@ namespace WebAtividadeEntrevista.Controllers
             }
         }
 
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public JsonResult AdicionarBeneficiario(BeneficiarioModel beneficiarioModel)
         {
 
@@ -204,8 +204,47 @@ namespace WebAtividadeEntrevista.Controllers
             }
         }
 
+        [System.Web.Mvc.HttpPost]
+        public JsonResult AdicionarBeneficiarioEmlote(CadastrarBeneficiarioEmLoteModel request)
+        {
+            BoCliente bo = new BoCliente();
+            List<Beneficiario> beneficiarios = new List<Beneficiario>();
 
-        [HttpPost]
+            try
+            {
+                if (request.Beneficiarios.Count == 0)
+                {
+                    Response.StatusCode = 400;
+                    return Json("Dados Inválidos. Campo beneficiarios não pode ser vazio.");
+                }
+                else
+                {
+                    foreach(var beneficiarioModel in request.Beneficiarios)
+                    {
+                        beneficiarios.Add(new Beneficiario
+                        {
+                            Nome = beneficiarioModel.Nome,
+                            CPF = beneficiarioModel.CPF,
+                            IdCliente = beneficiarioModel.IdCliente
+                        });
+                    }
+
+                    bo.AdicionarBeneficiarioEmLote(beneficiarios);
+                    return Json("Beneficiários cadastrados com sucesso.");
+                }
+            }
+            catch(Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { Result = "ERROR", Message = ex.Message });
+            }
+        }
+
+
+
+
+
+        [System.Web.Mvc.HttpPost]
         public JsonResult DeleteBeneficiario(long Id)
         {
 
@@ -223,7 +262,7 @@ namespace WebAtividadeEntrevista.Controllers
             }
         }
 
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public JsonResult EditarBeneficiario(BeneficiarioModel beneficiarioModel)
         {
 
@@ -247,7 +286,7 @@ namespace WebAtividadeEntrevista.Controllers
 
         }
 
-        [HttpGet]
+        [System.Web.Mvc.HttpGet]
         public JsonResult BeneficiarioList(long Id)
         {
 

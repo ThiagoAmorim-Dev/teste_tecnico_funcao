@@ -184,11 +184,27 @@ namespace FI.AtividadeEntrevista.BLL
             if (VerificarCpfBeneficiarioDoCliente(beneficiario.IdCliente, beneficiario.CPF))
                 throw new Exception("Já existe um beneficiário para esse cliente com esse CPF");
 
-
-            beneficiario.CPF = new string(beneficiario.CPF.Where(char.IsDigit).ToArray());
             return clienteDAO.AdicionarBeneficiario(beneficiario);
-
         }
+
+        public void AdicionarBeneficiarioEmLote(List<Beneficiario> beneficiarios)
+        {
+            DAL.DaoCliente clienteDAO = new DAL.DaoCliente();
+
+            foreach(var beneficiario in beneficiarios)
+            {
+                beneficiario.CPF = new string(beneficiario.CPF.Where(char.IsDigit).ToArray());
+                if (!ValidarCPF(beneficiario.CPF))
+                    throw new Exception("Um ou mais CPFS inválidos. Por favor, digite novamente.");
+
+                if (VerificarCpfBeneficiarioDoCliente(beneficiario.IdCliente, beneficiario.CPF))
+                    throw new Exception("Existem cpfs duplicados. Por favor, tente inserir novamente.");
+
+                clienteDAO.AdicionarBeneficiario(beneficiario);
+            }
+        }
+
+
 
         public bool VerificarCpfBeneficiarioDoCliente(long IdCliente, string cpf)
         {
